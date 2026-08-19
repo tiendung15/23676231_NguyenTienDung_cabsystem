@@ -161,7 +161,7 @@ POWER  │           │ • Ban giám đốc      │
        │   Provider│                     │
        │           │                     │
        └───────────┴─────────────────────┘
-
+```
 ## B3. Xác định Business Goal
 
 | Mã | Business Goal | Ý nghĩa |
