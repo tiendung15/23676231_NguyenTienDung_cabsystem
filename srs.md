@@ -1,4 +1,4 @@
-B1 đọc và phân tích yêu cầu , hiểu về bussiness contest , xđ bussiness prolem, ngữ cảnh nghiệp vụ , KH cần giải quyết vấn đề mà hệ thống không xử lý được , mục tiêu , giá trị hệ thống , giá trị hệ thống mới khác gì hệ thống cũ
+## B1 đọc và phân tích yêu cầu , hiểu về bussiness contest , xđ bussiness prolem, ngữ cảnh nghiệp vụ , KH cần giải quyết vấn đề mà hệ thống không xử lý được , mục tiêu , giá trị hệ thống , giá trị hệ thống mới khác gì hệ thống cũ
 1. Tổng quan bài toán
 
 Công ty ABC đang cung cấp dịch vụ đặt xe trực tuyến. Hiện tại khách hàng có thể yêu cầu xe thông qua tổng đài hoặc một ứng dụng đơn giản.
@@ -118,7 +118,7 @@ Cung cấp báo cáo quản trị.
 Có kiến trúc đủ linh hoạt để mở rộng trong tương lai.
 
 
-B2 xđ stackholder , lập bảng cột 1 những stackholder nào , cột 2 vai trò của mỗi ng , dưới bảng vẽ ma trận stackholder metrix
+## B2 xđ stackholder , lập bảng cột 1 những stackholder nào , cột 2 vai trò của mỗi ng , dưới bảng vẽ ma trận stackholder metrix
 | Stakeholder | Vai trò |
 |---|---|
 | **Khách hàng (Customer)** | Người sử dụng CAB để đăng ký, đặt xe, theo dõi chuyến, thanh toán, xem lịch sử và đánh giá tài xế. |
@@ -172,3 +172,38 @@ POWER  │           │ • Ban giám đốc      │
 | **BS04** | Tăng tỷ lệ chuyến xe hoàn thành | Nâng cao khả năng hoàn thành chuyến và hiệu quả hoạt động của hệ thống. |
 | **BS05** | Nâng cao khả năng theo dõi và quản lý chuyến đi | Cho phép khách hàng và nhân viên theo dõi trạng thái chuyến đi rõ ràng. |
 | **BS06** | Tăng khả năng mở rộng và phát triển hệ thống | Đảm bảo hệ thống có thể phục vụ nhiều khách hàng, tài xế và bổ sung tính năng trong tương lai. |
+
+
+## B4. Xác định phạm vi dự án
+
+### Trong phạm vi (In Scope)
+
+- Quy trình đặt xe từ khi khách hàng tạo yêu cầu.
+- Tự động tìm và phân công tài xế.
+- Tài xế nhận và thực hiện chuyến.
+- Theo dõi và cập nhật trạng thái chuyến đi.
+- Tính cước và hỗ trợ thanh toán.
+- Gửi thông báo cho khách hàng và tài xế.
+- Quản lý cơ bản khách hàng, tài xế và chuyến đi cho nhân viên vận hành.
+
+### Ngoài phạm vi (Out of Scope)
+
+- Xây dựng hệ thống bản đồ/GPS riêng.
+- Tự xây dựng hệ thống thanh toán điện tử; chỉ tích hợp với nhà cung cấp bên ngoài.
+- Các loại dịch vụ mới chưa được xác định trong giai đoạn hiện tại.
+- Các chính sách nghiệp vụ chưa được khách hàng chốt như cách tính cước chi tiết, tiêu chí ưu tiên tài xế và chính sách hủy chuyến.
+
+## B5. Chuyển yêu cầu khách hàng thành Business Requirement
+
+| Mã | Business Requirement | Mô tả |
+|---|---|---|
+| **BR01** | Quản lý người dùng | Hệ thống phải hỗ trợ quản lý tài khoản và thông tin của khách hàng, tài xế và nhân viên vận hành. |
+| **BR02** | Đặt xe | Hệ thống phải cho phép khách hàng tạo yêu cầu đặt xe với điểm đón, điểm đến và loại xe. |
+| **BR03** | Tìm và phân công tài xế tự động | Hệ thống phải tự động tìm tài xế phù hợp dựa trên vị trí, trạng thái sẵn sàng và các tiêu chí vận hành. |
+| **BR04** | Quản lý và theo dõi chuyến đi | Hệ thống phải hỗ trợ theo dõi trạng thái chuyến đi từ khi đặt xe đến khi hoàn thành. |
+| **BR05** | Quản lý thông tin tài xế và phương tiện | Hệ thống phải hỗ trợ quản lý hồ sơ tài xế, thông tin phương tiện và trạng thái hoạt động. |
+| **BR06** | Tính cước và thanh toán | Hệ thống phải hỗ trợ tính số tiền phải trả và thanh toán bằng tiền mặt hoặc phương thức điện tử. |
+| **BR07** | Quản lý thông báo | Hệ thống phải cung cấp thông báo cho khách hàng và tài xế về các sự kiện liên quan đến chuyến đi và thanh toán. |
+| **BR08** | Quản lý vận hành | Hệ thống phải cung cấp giao diện để nhân viên vận hành quản lý khách hàng, tài xế, phương tiện và chuyến đi. |
+| **BR09** | Báo cáo và theo dõi hoạt động | Hệ thống phải cung cấp dữ liệu và báo cáo về số lượng chuyến, doanh thu, tỷ lệ hoàn thành, tỷ lệ hủy và hiệu quả tài xế. |
+| **BR10** | Bảo mật và khả năng mở rộng | Hệ thống phải bảo vệ dữ liệu và phân quyền truy cập, đồng thời có khả năng mở rộng và bổ sung chức năng trong tương lai. |
