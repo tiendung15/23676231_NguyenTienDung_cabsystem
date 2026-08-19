@@ -686,3 +686,240 @@ erDiagram
 - **TRIP** là entity trung tâm, liên kết gần như toàn bộ hệ thống (Customer, Driver, Vehicle, Fare, Payment, Rating, Notification) — đúng với vai trò "trục nghiệp vụ chính" đã xác định ở B6.
 - **PAYMENT – TRANSACTION** tách riêng để hỗ trợ trường hợp thanh toán thất bại/retry nhiều lần (đúng theo BRule08, EX09, EX11 ở B8).
 - Mô hình này là đầu vào để bước sau (B10) chuyển thành **Class Diagram** hoặc thiết kế **Database Schema** chi tiết (kiểu dữ liệu, ràng buộc, index).
+
+# B10. Yêu cầu phi chức năng (Non-Functional Requirements – NFR)
+
+| Mã NFR | Nhóm | Yêu cầu | Chỉ tiêu/Mục tiêu |
+|---|---|---|---|
+| **NFR01** | Performance | Thời gian phản hồi khi tìm tài xế | ≤ 3 giây kể từ khi tạo booking |
+| **NFR02** | Performance | Thời gian cập nhật vị trí tài xế | Cập nhật mỗi 3–5 giây trong lúc chạy chuyến |
+| **NFR03** | Scalability | Khả năng chịu tải khi số lượng chuyến tăng | Hỗ trợ tối thiểu 10,000 chuyến đồng thời, có thể mở rộng theo chiều ngang (horizontal scaling) |
+| **NFR04** | Availability | Thời gian hoạt động của hệ thống | Uptime ≥ 99.5%/tháng |
+| **NFR05** | Security | Bảo vệ dữ liệu người dùng | Mã hóa dữ liệu nhạy cảm (mật khẩu, thông tin thanh toán) khi lưu trữ và truyền tải (HTTPS/TLS) |
+| **NFR06** | Security | Phân quyền truy cập | Áp dụng RBAC (Role-Based Access Control) theo vai trò User |
+| **NFR07** | Reliability | Toàn vẹn giao dịch thanh toán | Không được mất/trùng giao dịch dù hệ thống gặp sự cố (đảm bảo tính idempotent) |
+| **NFR08** | Usability | Trải nghiệm người dùng | Giao diện đặt xe hoàn tất tối đa trong 3 bước thao tác |
+| **NFR09** | Maintainability | Khả năng bảo trì/mở rộng | Kiến trúc microservices/module hóa để bổ sung dịch vụ mới mà không sửa toàn bộ hệ thống |
+| **NFR10** | Compatibility | Tương thích thiết bị | Hỗ trợ Android, iOS và trình duyệt web phổ biến |
+| **NFR11** | Auditability | Lưu vết thao tác | Ghi log toàn bộ thao tác quan trọng (đặt xe, hủy, thanh toán, thao tác của NV vận hành) phục vụ tra soát |
+| **NFR12** | Interoperability | Tích hợp bên thứ ba | Có khả năng tích hợp với nhiều Payment Provider / Notification Provider khác nhau qua API chuẩn |
+
+> NFR01–NFR12 hiện thực hóa **BR10 (Bảo mật & khả năng mở rộng)** đã nêu ở B5, đồng thời bổ sung các tiêu chí đo lường được (measurable) mà BR mức cao chưa thể hiện rõ.
+
+---
+
+# B11. Vẽ Use Case Diagram
+
+## 1. Xác định Actor
+
+| Actor | Loại | Mô tả |
+|---|---|---|
+| **Customer (KH)** | Primary | Người đặt xe, theo dõi, thanh toán, đánh giá |
+| **Driver (Tài xế)** | Primary | Người nhận/thực hiện chuyến |
+| **Operation Staff (NV vận hành)** | Primary | Quản lý vận hành, xử lý sự cố |
+| **System** | Supporting | Actor đại diện xử lý tự động (tìm tài xế, tính cước) |
+| **Payment Provider** | External | Cổng thanh toán bên thứ ba |
+| **Notification Provider** | External | Dịch vụ gửi SMS/Push notification |
+
+## 2. Danh sách Use Case (gộp từ FR01–FR40)
+
+| Mã UC | Tên Use Case | Actor chính | FR liên quan |
+|---|---|---|---|
+| UC01 | Đăng ký tài khoản | Customer, Driver | FR01 |
+| UC02 | Đăng nhập | Tất cả | FR02 |
+| UC03 | Cập nhật hồ sơ cá nhân | Customer, Driver | FR03 |
+| UC04 | Duyệt hồ sơ tài xế | Operation Staff | FR04, FR05 |
+| UC05 | Đặt xe | Customer | FR06–FR09 |
+| UC06 | Hủy chuyến | Customer | FR10 |
+| UC07 | Tìm & phân công tài xế | System | FR11–FR15 |
+| UC08 | Chấp nhận/từ chối chuyến | Driver | FR13 |
+| UC09 | Theo dõi chuyến đi | Customer | FR16, FR17 |
+| UC10 | Bắt đầu chuyến | Driver | FR18 |
+| UC11 | Kết thúc chuyến | Driver | FR19 |
+| UC12 | Tính cước | System | FR21 |
+| UC13 | Thanh toán chuyến đi | Customer | FR22–FR24 |
+| UC14 | Xử lý giao dịch điện tử | System, Payment Provider | FR23, FR24 |
+| UC15 | Tra cứu lịch sử giao dịch | Customer, Operation Staff | FR25 |
+| UC16 | Đánh giá tài xế | Customer | FR20 |
+| UC17 | Nhận thông báo | Customer, Driver, Notification Provider | FR26–FR30 |
+| UC18 | Giám sát dashboard | Operation Staff | FR31 |
+| UC19 | Quản lý khách hàng | Operation Staff | FR32 |
+| UC20 | Quản lý tài xế | Operation Staff | FR33 |
+| UC21 | Quản lý phương tiện | Operation Staff | FR34 |
+| UC22 | Xử lý sự cố/khiếu nại | Operation Staff | FR35 |
+| UC23 | Xem báo cáo thống kê | Operation Staff | FR36–FR39 |
+| UC24 | Xuất báo cáo | Operation Staff | FR40 |
+
+## 3. Sơ đồ Use Case (Mermaid)
+
+```mermaid
+flowchart LR
+    Customer(("👤 Customer"))
+    Driver(("👤 Driver"))
+    Staff(("👤 Operation Staff"))
+    Sys(("⚙️ System"))
+    PayProvider(("💳 Payment Provider"))
+    NotiProvider(("🔔 Notification Provider"))
+
+    subgraph Account["Tài khoản"]
+        UC01(["UC01: Đăng ký tài khoản"])
+        UC02(["UC02: Đăng nhập"])
+        UC03(["UC03: Cập nhật hồ sơ"])
+        UC04(["UC04: Duyệt hồ sơ tài xế"])
+    end
+
+    subgraph Booking["Đặt xe & phân công"]
+        UC05(["UC05: Đặt xe"])
+        UC06(["UC06: Hủy chuyến"])
+        UC07(["UC07: Tìm & phân công tài xế"])
+        UC08(["UC08: Chấp nhận/từ chối chuyến"])
+    end
+
+    subgraph TripExec["Thực hiện chuyến"]
+        UC09(["UC09: Theo dõi chuyến đi"])
+        UC10(["UC10: Bắt đầu chuyến"])
+        UC11(["UC11: Kết thúc chuyến"])
+        UC16(["UC16: Đánh giá tài xế"])
+    end
+
+    subgraph PaymentGrp["Thanh toán"]
+        UC12(["UC12: Tính cước"])
+        UC13(["UC13: Thanh toán chuyến đi"])
+        UC14(["UC14: Xử lý giao dịch điện tử"])
+        UC15(["UC15: Tra cứu lịch sử giao dịch"])
+    end
+
+    UC17(["UC17: Nhận thông báo"])
+
+    subgraph Ops["Vận hành & báo cáo"]
+        UC18(["UC18: Giám sát dashboard"])
+        UC19(["UC19: Quản lý khách hàng"])
+        UC20(["UC20: Quản lý tài xế"])
+        UC21(["UC21: Quản lý phương tiện"])
+        UC22(["UC22: Xử lý sự cố/khiếu nại"])
+        UC23(["UC23: Xem báo cáo thống kê"])
+        UC24(["UC24: Xuất báo cáo"])
+    end
+
+    Customer --> UC01
+    Customer --> UC02
+    Customer --> UC03
+    Customer --> UC05
+    Customer --> UC06
+    Customer --> UC09
+    Customer --> UC13
+    Customer --> UC15
+    Customer --> UC16
+    Customer --> UC17
+
+    Driver --> UC01
+    Driver --> UC02
+    Driver --> UC03
+    Driver --> UC08
+    Driver --> UC10
+    Driver --> UC11
+    Driver --> UC17
+
+    Staff --> UC02
+    Staff --> UC04
+    Staff --> UC15
+    Staff --> UC18
+    Staff --> UC19
+    Staff --> UC20
+    Staff --> UC21
+    Staff --> UC22
+    Staff --> UC23
+    Staff --> UC24
+
+    Sys --> UC07
+    Sys --> UC12
+    Sys --> UC14
+    UC05 -.include.-> UC07
+    UC11 -.include.-> UC12
+    UC12 -.include.-> UC13
+    UC13 -.include.-> UC14
+
+    PayProvider --> UC14
+    NotiProvider --> UC17
+```
+
+---
+
+# B12. Đặc tả Use Case (Use Case Specification)
+
+> Đặc tả chi tiết cho các Use Case cốt lõi thuộc trục nghiệp vụ chính. Các UC còn lại (UC01–UC04, UC18–UC24…) áp dụng cùng cấu trúc mẫu này.
+
+## UC05 – Đặt xe
+
+| Mục | Nội dung |
+|---|---|
+| **Mã UC** | UC05 |
+| **Tên UC** | Đặt xe |
+| **Actor** | Customer |
+| **Mô tả** | Khách hàng tạo yêu cầu đặt xe với điểm đón, điểm đến và loại xe. |
+| **Điều kiện tiên quyết** | KH đã đăng nhập thành công (UC02); tài khoản đang ở trạng thái Active. |
+| **Điều kiện sau** | Một Trip mới được tạo với trạng thái "Requested"; hệ thống chuyển sang UC07 (Tìm & phân công tài xế). |
+| **Luồng chính** | 1. KH mở màn hình đặt xe.<br>2. KH nhập/chọn điểm đón và điểm đến.<br>3. KH chọn loại xe.<br>4. Hệ thống hiển thị cước dự kiến (FR08).<br>5. KH xác nhận đặt xe.<br>6. Hệ thống tạo Trip mới (FR09), chuyển trạng thái "Requested".<br>7. Hệ thống gọi UC07 để tìm tài xế. |
+| **Luồng thay thế** | 5a. KH hủy thao tác trước khi xác nhận → kết thúc UC, không tạo Trip. |
+| **Ngoại lệ** | **EX01**: Điểm đón/đến ngoài vùng phục vụ → báo lỗi, yêu cầu chọn lại.<br>**EX02**: Mất kết nối khi gửi yêu cầu → lưu tạm, thử gửi lại. |
+| **Business Rule liên quan** | BRule01 (phải xác thực trước khi đặt xe) |
+
+## UC07 – Tìm & phân công tài xế
+
+| Mục | Nội dung |
+|---|---|
+| **Mã UC** | UC07 |
+| **Tên UC** | Tìm & phân công tài xế |
+| **Actor** | System (được kích hoạt tự động sau UC05) |
+| **Mô tả** | Hệ thống tự động tìm tài xế phù hợp và gán cho chuyến đi. |
+| **Điều kiện tiên quyết** | Trip đang ở trạng thái "Requested". |
+| **Điều kiện sau** | Trip chuyển sang "Assigned" (thành công) hoặc "Cancelled/NoDriver" (thất bại). |
+| **Luồng chính** | 1. Hệ thống tìm danh sách tài xế "Available" gần điểm đón (BRule04).<br>2. Gửi yêu cầu chuyến tới tài xế gần nhất.<br>3. Chờ phản hồi trong thời gian giới hạn (BRule05).<br>4. Tài xế chấp nhận → Trip chuyển "Assigned", gán DriverID.<br>5. Hệ thống gọi UC17 thông báo cho KH. |
+| **Luồng thay thế** | 3a. Tài xế từ chối/timeout → quay lại bước 2 với tài xế kế tiếp (FR14). |
+| **Ngoại lệ** | **EX03**: Không còn tài xế nào phù hợp → thông báo KH, kết thúc UC (FR15).<br>**EX04**: Tài xế từ chối liên tiếp nhiều lần → ghi log cho NV vận hành.<br>**EX05**: Tài xế không phản hồi do mất kết nối → tự động timeout, chuyển tài xế khác. |
+| **Business Rule liên quan** | BRule02, BRule03, BRule04, BRule05 |
+
+## UC13 – Thanh toán chuyến đi
+
+| Mục | Nội dung |
+|---|---|
+| **Mã UC** | UC13 |
+| **Tên UC** | Thanh toán chuyến đi |
+| **Actor** | Customer |
+| **Mô tả** | Khách hàng thanh toán cước phí sau khi chuyến đi hoàn thành. |
+| **Điều kiện tiên quyết** | Trip ở trạng thái "Completed"; Fare đã được tính (UC12). |
+| **Điều kiện sau** | Payment ở trạng thái "Success"; hệ thống gọi UC17 gửi thông báo kết quả. |
+| **Luồng chính** | 1. Hệ thống hiển thị số tiền cần thanh toán.<br>2. KH chọn phương thức: tiền mặt hoặc điện tử.<br>3. Nếu điện tử → hệ thống gọi UC14 (Xử lý giao dịch điện tử).<br>4. Ghi nhận Payment = "Success".<br>5. Chuyển sang UC16 (Đánh giá tài xế). |
+| **Luồng thay thế** | 2a. KH chọn tiền mặt → xác nhận trực tiếp với tài xế, bỏ qua bước 3. |
+| **Ngoại lệ** | **EX09**: Giao dịch điện tử thất bại → cho phép chọn lại phương thức hoặc thử lại (FR24).<br>**EX10**: Thanh toán tiền mặt không đủ → ghi nhận công nợ, chuyển NV vận hành xử lý.<br>**EX11**: Mất kết nối khi thanh toán → đối soát lại với Payment Provider trước khi cập nhật trạng thái cuối. |
+| **Business Rule liên quan** | BRule07, BRule08 |
+
+## UC16 – Đánh giá tài xế
+
+| Mục | Nội dung |
+|---|---|
+| **Mã UC** | UC16 |
+| **Tên UC** | Đánh giá tài xế |
+| **Actor** | Customer |
+| **Mô tả** | Khách hàng đánh giá và nhận xét tài xế sau khi hoàn tất thanh toán. |
+| **Điều kiện tiên quyết** | Payment đã ở trạng thái "Success". |
+| **Điều kiện sau** | Rating được lưu; AverageRating của Driver được cập nhật. |
+| **Luồng chính** | 1. Hệ thống hiển thị màn hình đánh giá sau khi thanh toán.<br>2. KH chọn số sao (1–5) và nhập nhận xét (tùy chọn).<br>3. Hệ thống lưu Rating, cập nhật AverageRating của tài xế. |
+| **Luồng thay thế** | 2a. KH bỏ qua bước đánh giá → kết thúc UC, không tạo Rating. |
+| **Ngoại lệ** | Không có ngoại lệ đặc biệt (thao tác không bắt buộc). |
+| **Business Rule liên quan** | BRule09 (chỉ đánh giá 1 lần/chuyến) |
+
+## UC22 – Xử lý sự cố/khiếu nại
+
+| Mục | Nội dung |
+|---|---|
+| **Mã UC** | UC22 |
+| **Tên UC** | Xử lý sự cố/khiếu nại |
+| **Actor** | Operation Staff |
+| **Mô tả** | Nhân viên vận hành tiếp nhận và xử lý khiếu nại phát sinh từ chuyến đi. |
+| **Điều kiện tiên quyết** | NV vận hành đã đăng nhập; có quyền truy cập module xử lý khiếu nại (BRule10). |
+| **Điều kiện sau** | Khiếu nại được ghi nhận trạng thái xử lý (Resolved/Pending). |
+| **Luồng chính** | 1. NV vận hành tra cứu chuyến bị khiếu nại.<br>2. Xem chi tiết Trip, Payment, lịch sử liên quan.<br>3. Ghi nhận hướng xử lý (hoàn tiền, cảnh cáo tài xế, đóng khiếu nại...).<br>4. Cập nhật trạng thái khiếu nại. |
+| **Luồng thay thế** | 3a. Cần thêm thông tin từ KH/tài xế → chuyển trạng thái "Chờ bổ sung thông tin". |
+| **Ngoại lệ** | **EX13**: NV vận hành thao tác ngoài phạm vi quyền hạn → hệ thống chặn, ghi log. |
+| **Business Rule liên quan** | BRule10 |
