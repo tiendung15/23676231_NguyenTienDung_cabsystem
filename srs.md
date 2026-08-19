@@ -119,4 +119,56 @@ Có kiến trúc đủ linh hoạt để mở rộng trong tương lai.
 
 
 B2 xđ stackholder , lập bảng cột 1 những stackholder nào , cột 2 vai trò của mỗi ng , dưới bảng vẽ ma trận stackholder metrix
+| Stakeholder | Vai trò |
+|---|---|
+| **Khách hàng (Customer)** | Người sử dụng CAB để đăng ký, đặt xe, theo dõi chuyến, thanh toán, xem lịch sử và đánh giá tài xế. |
+| **Tài xế (Driver)** | Người cung cấp dịch vụ vận chuyển; nhận/từ chối chuyến, cập nhật trạng thái chuyến, vị trí và hoàn thành chuyến. |
+| **Nhân viên vận hành (Operation Staff)** | Theo dõi hoạt động, quản lý khách hàng, tài xế, phương tiện, chuyến đi và xử lý sự cố. |
 
+## 2.1. Stakeholder Matrix
+
+Stakeholder Matrix được phân tích dựa trên 2 tiêu chí:
+
+- **Power:** Mức độ quyền lực/ảnh hưởng đến dự án.
+- **Interest:** Mức độ quan tâm đến hệ thống.
+
+| | **Interest thấp** | **Interest cao** |
+|---|---|---|
+| **Power cao** | **KEEP SATISFIED**  <br>Administrator  <br>Payment Provider  <br>IT/Technical Team | **MANAGE CLOSELY**  <br>Ban giám đốc  <br>Nhân viên vận hành  <br>Khách hàng  <br>Tài xế  <br>Business Analyst |
+| **Power thấp** | **MONITOR**  <br>Notification Provider | **KEEP INFORMED**  <br>Development Team |
+
+### Stakeholder Matrix
+
+```text
+                         INTEREST
+                  Thấp                  Cao
+                   │                     │
+       ┌───────────┼─────────────────────┐
+       │           │                     │
+       │  KEEP     │   MANAGE CLOSELY    │
+ CAO   │ SATISFIED │                     │
+POWER  │           │ • Ban giám đốc      │
+       │ • Admin   │ • Nhân viên vận hành│
+       │ • Payment │ • Khách hàng        │
+       │   Provider│ • Tài xế            │
+       │ • IT      │ • BA                │
+       │           │                     │
+       ├───────────┼─────────────────────┤
+       │           │                     │
+       │  MONITOR  │   KEEP INFORMED     │
+ THẤP  │           │                     │
+       │ • Notify  │ • Development Team  │
+       │   Provider│                     │
+       │           │                     │
+       └───────────┴─────────────────────┘
+
+## B3. Xác định Business Goal
+
+| Mã | Business Goal | Ý nghĩa |
+|---|---|---|
+| **BS01** | Tăng hiệu quả thanh toán | Hỗ trợ tính cước và thanh toán nhanh chóng, thuận tiện cho khách hàng. |
+| **BS02** | Giảm thời gian tìm và phân công tài xế | Tự động tìm và phân công tài xế phù hợp, ưu tiên tài xế gần khách hàng. |
+| **BS03** | Giảm tỷ lệ hủy chuyến | Hạn chế tình trạng chuyến bị hủy khi tài xế từ chối hoặc không phản hồi. |
+| **BS04** | Tăng tỷ lệ chuyến xe hoàn thành | Nâng cao khả năng hoàn thành chuyến và hiệu quả hoạt động của hệ thống. |
+| **BS05** | Nâng cao khả năng theo dõi và quản lý chuyến đi | Cho phép khách hàng và nhân viên theo dõi trạng thái chuyến đi rõ ràng. |
+| **BS06** | Tăng khả năng mở rộng và phát triển hệ thống | Đảm bảo hệ thống có thể phục vụ nhiều khách hàng, tài xế và bổ sung tính năng trong tương lai. |
