@@ -923,3 +923,209 @@ flowchart LR
 | **Luồng thay thế** | 3a. Cần thêm thông tin từ KH/tài xế → chuyển trạng thái "Chờ bổ sung thông tin". |
 | **Ngoại lệ** | **EX13**: NV vận hành thao tác ngoài phạm vi quyền hạn → hệ thống chặn, ghi log. |
 | **Business Rule liên quan** | BRule10 |
+
+# B13. Tiêu chí chấp nhận (Acceptance Criteria)
+
+Ký hiệu: **AC-UCxx-nn**
+
+---
+
+## UC01 – Đăng ký tài khoản
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC01-01 | Người dùng chưa có tài khoản | Nhập đầy đủ thông tin hợp lệ (họ tên, SĐT/email, mật khẩu) và xác nhận đăng ký | Hệ thống tạo tài khoản mới, trạng thái chờ xác thực |
+| AC-UC01-02 | Người dùng nhập SĐT/email đã tồn tại | Bấm đăng ký | Hệ thống báo lỗi trùng thông tin, không tạo tài khoản mới |
+| AC-UC01-03 | Người dùng nhập thiếu trường bắt buộc | Bấm đăng ký | Hệ thống báo lỗi, yêu cầu bổ sung thông tin |
+
+## UC02 – Đăng nhập / Xác thực
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC02-01 | Tài khoản tồn tại, đúng thông tin đăng nhập | Nhập tài khoản/mật khẩu (hoặc OTP) hợp lệ | Hệ thống xác thực thành công, cho phép truy cập theo vai trò (FR04) |
+| AC-UC02-02 | Tài khoản chưa xác thực (theo BRule01) | Thử đặt xe khi chưa xác thực | Hệ thống chặn thao tác, yêu cầu xác thực trước |
+| AC-UC02-03 | Nhập sai mật khẩu/OTP | Đăng nhập | Hệ thống báo lỗi, không cấp quyền truy cập |
+| AC-UC02-04 | Tài khoản ở trạng thái "Locked" | Đăng nhập | Hệ thống từ chối đăng nhập, thông báo tài khoản bị khóa |
+
+## UC03 – Cập nhật hồ sơ cá nhân
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC03-01 | Người dùng đã đăng nhập | Chỉnh sửa thông tin cá nhân hợp lệ và lưu | Hệ thống cập nhật thông tin thành công |
+| AC-UC03-02 | Người dùng nhập dữ liệu không hợp lệ (VD: email sai định dạng) | Lưu thay đổi | Hệ thống báo lỗi, không lưu thay đổi |
+
+## UC04 – Duyệt hồ sơ tài xế
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC04-01 | Tài xế nộp hồ sơ đăng ký, NV vận hành có quyền duyệt | NV vận hành duyệt hồ sơ hợp lệ | Trạng thái tài xế chuyển sang "Available", tài xế được phép nhận chuyến (BRule02) |
+| AC-UC04-02 | Hồ sơ tài xế thiếu/không hợp lệ | NV vận hành từ chối hồ sơ | Hệ thống ghi nhận từ chối, tài xế không được kích hoạt |
+
+## UC05 – Đặt xe
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC05-01 | KH đã đăng nhập, tài khoản Active, đã xác thực (BRule01) | Nhập điểm đón/đến hợp lệ, chọn loại xe và xác nhận đặt xe | Hệ thống tạo Trip mới trạng thái "Requested", chuyển sang UC07 |
+| AC-UC05-02 | KH đang ở màn hình đặt xe | Chọn loại xe | Hệ thống hiển thị cước dự kiến trước khi xác nhận (FR08) |
+| AC-UC05-03 | Điểm đón/đến ngoài vùng phục vụ | Bấm xác nhận đặt xe | Hệ thống báo lỗi, yêu cầu chọn lại vị trí (EX01) |
+| AC-UC05-04 | Đang gửi yêu cầu đặt xe | Mất kết nối mạng | Hệ thống lưu tạm yêu cầu, tự thử gửi lại; quá thời gian thì báo lỗi (EX02) |
+| AC-UC05-05 | KH chưa xác nhận đặt xe | KH huỷ thao tác | Không có Trip nào được tạo |
+
+## UC06 – Hủy chuyến
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC06-01 | Trip chưa có tài xế đến điểm đón | KH hủy chuyến | Hệ thống hủy Trip miễn phí (BRule06) |
+| AC-UC06-02 | Tài xế đã đến điểm đón | KH hủy chuyến | Hệ thống áp dụng phí hủy theo chính sách (BRule06) |
+| AC-UC06-03 | Trip đã ở trạng thái "Completed" | KH thử hủy | Hệ thống từ chối, thông báo không thể hủy chuyến đã hoàn thành |
+
+## UC07 – Tìm & phân công tài xế
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC07-01 | Trip trạng thái "Requested", có tài xế "Available" trong bán kính quy định | Hệ thống tìm kiếm | Gửi yêu cầu tới tài xế gần nhất trước (BRule04) |
+| AC-UC07-02 | Yêu cầu đã gửi tới tài xế | Tài xế phản hồi trong thời gian giới hạn và chấp nhận | Trip chuyển "Assigned", gán DriverID, gọi UC17 thông báo KH |
+| AC-UC07-03 | Yêu cầu đã gửi tới tài xế | Tài xế từ chối hoặc không phản hồi quá thời gian quy định (BRule05) | Hệ thống tự động chuyển sang tài xế kế tiếp (FR14) |
+| AC-UC07-04 | Không còn tài xế nào phù hợp trong khu vực | Hệ thống tìm hết danh sách | Thông báo cho KH không tìm được tài xế, kết thúc UC (EX03/FR15) |
+| AC-UC07-05 | Tài xế từ chối liên tiếp nhiều chuyến | Hệ thống ghi nhận | Ghi log để NV vận hành theo dõi (EX04) |
+| AC-UC07-06 | Tài xế mất kết nối, không phản hồi | Hết thời gian timeout | Hệ thống tự hủy yêu cầu với tài xế đó, chuyển tài xế khác (EX05) |
+| AC-UC07-07 | Tài xế đang có 1 chuyến hoạt động | Hệ thống tìm tài xế | Tài xế này không được gán thêm chuyến mới (BRule03) |
+
+## UC08 – Chấp nhận/từ chối chuyến
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC08-01 | Tài xế nhận được yêu cầu chuyến | Tài xế bấm "Chấp nhận" trong thời gian quy định | Trip gán cho tài xế, chuyển "Assigned" |
+| AC-UC08-02 | Tài xế nhận được yêu cầu chuyến | Tài xế bấm "Từ chối" | Hệ thống chuyển yêu cầu sang tài xế kế tiếp (FR14) |
+| AC-UC08-03 | Tài xế không phản hồi | Hết thời gian X giây quy định (BRule05) | Hệ thống coi như từ chối, tìm tài xế khác |
+
+## UC09 – Theo dõi chuyến đi
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC09-01 | Trip đang ở bất kỳ trạng thái nào (Finding/Assigned/OnGoing...) | KH mở màn hình theo dõi | Hệ thống hiển thị đúng trạng thái hiện tại của chuyến (FR17) |
+| AC-UC09-02 | Trip đang "OnGoing" | Tài xế di chuyển | Vị trí tài xế được cập nhật mỗi 3–5 giây trên bản đồ KH (FR16, NFR02) |
+| AC-UC09-03 | Tài xế mất tín hiệu GPS | Hệ thống không nhận được vị trí mới | Giữ vị trí cuối cùng ghi nhận, cảnh báo NV vận hành nếu mất tín hiệu quá lâu (EX06) |
+
+## UC10 – Bắt đầu chuyến
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC10-01 | Trip ở trạng thái "Assigned", tài xế đã đến điểm đón | Tài xế xác nhận đón khách | Trip chuyển "OnGoing", ghi nhận StartedAt (FR18) |
+| AC-UC10-02 | Khách hàng không có mặt tại điểm đón | Tài xế chờ quá thời gian quy định | Tài xế có thể hủy chuyến, áp dụng phí theo chính sách (EX08) |
+
+## UC11 – Kết thúc chuyến
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC11-01 | Trip ở trạng thái "OnGoing" | Tài xế xác nhận trả khách | Trip chuyển "Completed", ghi nhận CompletedAt, hệ thống gọi UC12 tính cước (FR19) |
+| AC-UC11-02 | Trip đang chạy | Tài xế hủy chuyến giữa đường | Hệ thống ghi nhận lý do hủy, thông báo KH, có thể chuyển tìm tài xế mới nếu KH đồng ý (EX07) |
+
+## UC12 – Tính cước
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC12-01 | Trip vừa chuyển "Completed" | Hệ thống tính cước | Cước = giá mở cửa + (đơn giá × quãng đường) + (đơn giá × thời gian) theo BRule07 |
+| AC-UC12-02 | Fare đã được tính | Hệ thống lưu kết quả | Bản ghi Fare được tạo, liên kết đúng TripID |
+
+## UC13 – Thanh toán chuyến đi
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC13-01 | Trip "Completed", Fare đã tính | KH chọn thanh toán tiền mặt | Hệ thống ghi nhận xác nhận trực tiếp với tài xế, Payment = "Success" |
+| AC-UC13-02 | Trip "Completed", Fare đã tính | KH chọn thanh toán điện tử, giao dịch thành công | Payment = "Success" chỉ sau khi Payment Provider xác nhận (BRule08), hệ thống gọi UC17 |
+| AC-UC13-03 | KH thanh toán điện tử | Giao dịch thất bại (thẻ lỗi/hết hạn mức) | Hệ thống báo lỗi, cho phép chọn phương thức khác hoặc thử lại (EX09) |
+| AC-UC13-04 | KH thanh toán tiền mặt | Không đủ tiền | Hệ thống ghi nhận công nợ, chuyển NV vận hành xử lý (EX10) |
+| AC-UC13-05 | Đang xử lý thanh toán | Mất kết nối, không rõ kết quả giao dịch | Hệ thống đối soát lại với Payment Provider trước khi cập nhật trạng thái cuối (EX11) |
+
+## UC14 – Xử lý giao dịch điện tử
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC14-01 | KH chọn thanh toán điện tử | Hệ thống gọi Payment Provider | Nhận phản hồi và lưu ProviderReference vào Transaction |
+| AC-UC14-02 | Giao dịch thất bại | Hệ thống ghi nhận | Transaction.Status = "Failed", cho phép retry (FR24) |
+| AC-UC14-03 | KH thử lại sau giao dịch thất bại | Gửi lại yêu cầu thanh toán | Hệ thống tạo Transaction mới, không trùng/mất giao dịch (NFR07 - idempotent) |
+
+## UC15 – Tra cứu lịch sử giao dịch
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC15-01 | KH/NV vận hành đã đăng nhập, có quyền tra cứu | Tìm kiếm theo Trip/khoảng thời gian | Hệ thống trả về danh sách giao dịch chính xác, đúng phạm vi dữ liệu được phép xem |
+| AC-UC15-02 | Không có giao dịch nào khớp điều kiện tìm kiếm | Thực hiện tra cứu | Hệ thống hiển thị danh sách rỗng, không báo lỗi |
+
+## UC16 – Đánh giá tài xế
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC16-01 | Payment đã "Success" | KH chọn số sao (1–5), nhập nhận xét và gửi | Rating được lưu, AverageRating của Driver cập nhật |
+| AC-UC16-02 | KH đã đánh giá chuyến này | KH thử đánh giá lại | Hệ thống từ chối, chỉ cho đánh giá 1 lần/chuyến (BRule09) |
+| AC-UC16-03 | Payment đã "Success" | KH bỏ qua bước đánh giá | Không tạo Rating, kết thúc UC bình thường |
+
+## UC17 – Nhận thông báo
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC17-01 | Trip vừa được tạo thành công | Hệ thống xử lý | Gửi thông báo xác nhận đặt xe cho KH (FR26) |
+| AC-UC17-02 | Tài xế vừa nhận chuyến | Trip chuyển "Assigned" | Gửi thông báo cho KH biết tài xế đã nhận (FR27) |
+| AC-UC17-03 | Tài xế gần/đã đến điểm đón | Hệ thống phát hiện vị trí | Gửi thông báo cho KH (FR28) |
+| AC-UC17-04 | Trip chuyển "Completed" | Hệ thống xử lý | Gửi thông báo hoàn thành chuyến cho KH và tài xế (FR29) |
+| AC-UC17-05 | Payment có kết quả (Success/Failed) | Hệ thống xử lý | Gửi thông báo kết quả thanh toán (FR30) |
+| AC-UC17-06 | Gửi thông báo tới thiết bị offline/token hết hạn | Gửi thất bại | Hệ thống retry theo cơ chế quy định; nếu vẫn thất bại thì lưu log (EX12) |
+
+## UC18 – Giám sát dashboard
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC18-01 | NV vận hành đã đăng nhập, có quyền xem dashboard | Mở dashboard | Hệ thống hiển thị tổng quan chuyến đang diễn ra, trạng thái tài xế theo thời gian thực (FR31) |
+| AC-UC18-02 | Có chuyến gặp sự cố (mất GPS, treo trạng thái...) | Hệ thống phát hiện | Dashboard hiển thị cảnh báo cho NV vận hành |
+
+## UC19 – Quản lý khách hàng
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC19-01 | NV vận hành có quyền quản lý KH (BRule10) | Tìm kiếm/xem thông tin khách hàng | Hệ thống trả về đúng dữ liệu KH yêu cầu |
+| AC-UC19-02 | KH vi phạm chính sách | NV vận hành khóa tài khoản | Tài khoản KH chuyển trạng thái "Locked", KH không đăng nhập được |
+| AC-UC19-03 | NV vận hành không có quyền trên phạm vi dữ liệu này | Thực hiện thao tác quản lý KH | Hệ thống chặn thao tác, ghi log (BRule10, EX13) |
+
+## UC20 – Quản lý tài xế
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC20-01 | NV vận hành có quyền quản lý tài xế | Xem/duyệt/khóa tài khoản tài xế | Thao tác được thực hiện và ghi nhận đúng (FR33) |
+| AC-UC20-02 | NV vận hành xem hồ sơ tài xế | Truy vấn hiệu suất | Hệ thống hiển thị số chuyến, đánh giá trung bình, tỷ lệ từ chối |
+
+## UC21 – Quản lý phương tiện
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC21-01 | NV vận hành có quyền quản lý phương tiện | Thêm/sửa thông tin phương tiện gắn với tài xế | Hệ thống lưu thông tin Vehicle chính xác, đúng DriverID (FR34) |
+| AC-UC21-02 | Phương tiện bị vô hiệu hóa | NV vận hành cập nhật Status = "Inactive" | Tài xế gắn với phương tiện đó không thể nhận chuyến bằng xe này |
+
+## UC22 – Xử lý sự cố/khiếu nại
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC22-01 | NV vận hành đã đăng nhập, có quyền xử lý khiếu nại (BRule10) | Tra cứu Trip, Payment liên quan và ghi nhận hướng xử lý | Khiếu nại được cập nhật trạng thái "Resolved" |
+| AC-UC22-02 | Khiếu nại cần thêm thông tin | NV vận hành xử lý | Trạng thái chuyển "Chờ bổ sung thông tin" |
+| AC-UC22-03 | NV vận hành thao tác ngoài phạm vi quyền hạn | Thực hiện thao tác | Hệ thống chặn, ghi log truy cập trái phép (EX13) |
+
+## UC23 – Xem báo cáo thống kê
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC23-01 | NV vận hành chọn khoảng thời gian báo cáo | Hệ thống tổng hợp dữ liệu | Chỉ tính các chuyến có trạng thái "Completed" hoặc "Cancelled" (BRule11) |
+| AC-UC23-02 | Có bản ghi dữ liệu thiếu/không đồng bộ | Hệ thống tổng hợp báo cáo | Đánh dấu bản ghi lỗi, loại khỏi báo cáo và cảnh báo quản trị viên (EX15) |
+| AC-UC23-03 | Dữ liệu hợp lệ | Xem báo cáo doanh thu/tỷ lệ hoàn thành/hủy/hiệu quả tài xế | Hệ thống hiển thị đúng số liệu theo FR36–FR39 |
+
+## UC24 – Xuất báo cáo
+
+| Mã AC | Given | When | Then |
+|---|---|---|---|
+| AC-UC24-01 | NV vận hành đang xem báo cáo hợp lệ | Chọn khoảng thời gian và bấm xuất báo cáo | Hệ thống xuất file đúng định dạng (Excel/PDF) với dữ liệu khớp màn hình xem (FR40) |
+| AC-UC24-02 | Khoảng thời gian không có dữ liệu | Bấm xuất báo cáo | Hệ thống xuất file trống hoặc thông báo không có dữ liệu, không báo lỗi hệ thống |
+
+---
+
+**Tổng hợp:** 24 UC → khoảng 60 Acceptance Criteria, bám sát Luồng chính/Luồng thay thế/Ngoại lệ (EX01–EX15) và Business Rules (BRule01–BRule11) đã xác định ở B08.
+
+AC ở bước này là đầu vào trực tiếp cho **Test Case** ở bước tiếp theo (B14) — mỗi AC thường ánh xạ 1-1 hoặc 1-nhiều sang test case cụ thể.
