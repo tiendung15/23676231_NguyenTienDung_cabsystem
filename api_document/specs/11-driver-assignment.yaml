@@ -1,0 +1,63 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Driver Assignment API
+  version: 1.0.0
+  description: System functions covering FR11-FR15 for finding and assigning drivers.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Driver Assignment
+paths:
+  /system/trips/{tripId}/find-drivers:
+    post:
+      tags: [Driver Assignment]
+      summary: Find nearby available drivers
+      operationId: findAvailableDrivers
+      parameters: [{name: tripId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Nearby drivers found}
+        '409': {description: No available driver}
+  /system/trips/{tripId}/requests:
+    post:
+      tags: [Driver Assignment]
+      summary: Send trip request to a driver
+      operationId: sendDriverRequest
+      parameters: [{name: tripId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [driverId]
+              properties:
+                driverId: {type: integer}
+      responses:
+        '202': {description: Trip request sent}
+        '409': {description: Driver unavailable}
+  /system/trips/{tripId}/assignment:
+    get:
+      tags: [Driver Assignment]
+      summary: Check assignment result
+      operationId: getAssignment
+      parameters: [{name: tripId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Assignment result}
+        '404': {description: Driver not assigned}
+  /system/trips/{tripId}/reassign:
+    post:
+      tags: [Driver Assignment]
+      summary: Find replacement driver after rejection or timeout
+      operationId: reassignDriver
+      parameters: [{name: tripId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '202': {description: Replacement search started}
+        '409': {description: No replacement driver found}
+  /system/trips/{tripId}/no-driver:
+    post:
+      tags: [Driver Assignment]
+      summary: Mark trip as no driver found
+      operationId: noDriverFound
+      parameters: [{name: tripId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Customer will be notified}

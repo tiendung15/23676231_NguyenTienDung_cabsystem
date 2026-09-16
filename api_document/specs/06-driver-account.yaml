@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Driver Account API
+  version: 1.0.0
+  description: Driver account functions covering FR01-FR04.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Driver Account
+paths:
+  /drivers/register:
+    post:
+      tags: [Driver Account]
+      summary: Register driver account
+      operationId: registerDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullName, phone, email, password, licenseNumber]
+              properties:
+                fullName: {type: string}
+                phone: {type: string}
+                email: {type: string, format: email}
+                password: {type: string, format: password}
+                licenseNumber: {type: string}
+      responses:
+        '201': {description: Driver registration submitted}
+        '409': {description: Driver already exists}
+  /drivers/login:
+    post:
+      tags: [Driver Account]
+      summary: Login driver
+      operationId: driverLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: {type: string, format: email}
+                password: {type: string, format: password}
+      responses:
+        '200': {description: Login successful}
+        '401': {description: Invalid credentials}
+  /drivers/{driverId}:
+    get:
+      tags: [Driver Account]
+      summary: View driver profile
+      operationId: getDriverProfile
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Driver profile}
+    put:
+      tags: [Driver Account]
+      summary: Update driver profile
+      operationId: updateDriverProfile
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName: {type: string}
+                phone: {type: string}
+                email: {type: string, format: email}
+                licenseNumber: {type: string}
+      responses:
+        '200': {description: Profile updated}
+  /drivers/{driverId}/availability:
+    patch:
+      tags: [Driver Account]
+      summary: Change driver availability
+      operationId: updateAvailability
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {type: string, enum: [Available, Offline]}
+      responses:
+        '200': {description: Availability updated}

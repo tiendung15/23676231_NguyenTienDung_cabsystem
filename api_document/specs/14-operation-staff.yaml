@@ -1,0 +1,89 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Operation Staff API
+  version: 1.0.0
+  description: Operation Staff functions covering FR31, FR32 and FR35.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Operation
+paths:
+  /operation/dashboard:
+    get:
+      tags: [Operation]
+      summary: View real-time operation dashboard
+      operationId: getDashboard
+      responses:
+        '200': {description: Real-time operational metrics}
+        '403': {description: Insufficient permission}
+  /operation/customers:
+    get:
+      tags: [Operation]
+      summary: Search and view customers
+      operationId: searchCustomers
+      parameters:
+        - {name: search, in: query, schema: {type: string}}
+        - {name: status, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Customer list}
+  /operation/customers/{customerId}/status:
+    patch:
+      tags: [Operation]
+      summary: Lock or unlock customer
+      operationId: changeCustomerStatus
+      parameters: [{name: customerId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {type: string, enum: [Active, Locked]}
+      responses:
+        '200': {description: Customer status updated}
+        '403': {description: Insufficient permission}
+  /operation/incidents:
+    get:
+      tags: [Operation]
+      summary: View incidents and complaints
+      operationId: listIncidents
+      responses:
+        '200': {description: Incident list}
+    post:
+      tags: [Operation]
+      summary: Record incident or complaint
+      operationId: createIncident
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tripId, description]
+              properties:
+                tripId: {type: integer}
+                description: {type: string}
+                category: {type: string}
+      responses:
+        '201': {description: Incident recorded}
+  /operation/incidents/{incidentId}:
+    patch:
+      tags: [Operation]
+      summary: Resolve incident or complaint
+      operationId: resolveIncident
+      parameters: [{name: incidentId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {type: string, enum: [Open, InProgress, Resolved, Closed]}
+                resolutionNote: {type: string}
+      responses:
+        '200': {description: Incident updated}
+        '403': {description: Insufficient permission}

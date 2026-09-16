@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Customer Rating API
+  version: 1.0.0
+  description: Customer rating functions covering FR20.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Customer Rating
+paths:
+  /customers/{customerId}/trips/{tripId}/rating:
+    post:
+      tags: [Customer Rating]
+      summary: Rate driver
+      operationId: rateDriver
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+        - {$ref: '#/components/parameters/TripId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score]
+              properties:
+                score: {type: integer, minimum: 1, maximum: 5}
+                comment: {type: string}
+      responses:
+        '201': {description: Rating submitted}
+        '400': {description: Trip is not completed or payment is not successful}
+        '409': {description: Trip already rated}
+    get:
+      tags: [Customer Rating]
+      summary: View rating for a trip
+      operationId: getTripRating
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+        - {$ref: '#/components/parameters/TripId'}
+      responses:
+        '200': {description: Rating details}
+        '404': {description: Rating not found}
+components:
+  parameters:
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      schema: {type: integer}
+    TripId:
+      name: tripId
+      in: path
+      required: true
+      schema: {type: integer}

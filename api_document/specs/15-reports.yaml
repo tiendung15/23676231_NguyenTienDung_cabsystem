@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Reports API
+  version: 1.0.0
+  description: Operation Staff reporting functions covering FR36-FR40.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Reports
+paths:
+  /operation/reports/trips:
+    get:
+      tags: [Reports]
+      summary: Generate trip count report
+      operationId: tripCountReport
+      parameters: [{name: from, in: query, required: true, schema: {type: string, format: date-time}}, {name: to, in: query, required: true, schema: {type: string, format: date-time}}, {name: groupBy, in: query, schema: {type: string, enum: [Day, Week, Month]}}]
+      responses:
+        '200': {description: Trip count report}
+  /operation/reports/revenue:
+    get:
+      tags: [Reports]
+      summary: Generate revenue report
+      operationId: revenueReport
+      parameters: [{name: from, in: query, required: true, schema: {type: string, format: date-time}}, {name: to, in: query, required: true, schema: {type: string, format: date-time}}, {name: area, in: query, schema: {type: string}}]
+      responses:
+        '200': {description: Revenue report}
+  /operation/reports/completion-cancellation:
+    get:
+      tags: [Reports]
+      summary: Generate completion and cancellation ratio report
+      operationId: completionCancellationReport
+      parameters: [{name: from, in: query, required: true, schema: {type: string, format: date-time}}, {name: to, in: query, required: true, schema: {type: string, format: date-time}}]
+      responses:
+        '200': {description: Completion and cancellation report}
+  /operation/reports/driver-performance:
+    get:
+      tags: [Reports]
+      summary: Generate driver performance report
+      operationId: driverPerformanceReport
+      parameters: [{name: from, in: query, required: true, schema: {type: string, format: date-time}}, {name: to, in: query, required: true, schema: {type: string, format: date-time}}, {name: driverId, in: query, schema: {type: integer}}]
+      responses:
+        '200': {description: Driver performance report}
+  /operation/reports/export:
+    get:
+      tags: [Reports]
+      summary: Export report as Excel or PDF
+      operationId: exportReport
+      parameters: [{name: reportType, in: query, required: true, schema: {type: string, enum: [Trips, Revenue, CompletionCancellation, DriverPerformance]}}, {name: from, in: query, required: true, schema: {type: string, format: date-time}}, {name: to, in: query, required: true, schema: {type: string, format: date-time}}, {name: format, in: query, required: true, schema: {type: string, enum: [Excel, PDF]}}]
+      responses:
+        '200':
+          description: Exported report
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}

@@ -1,0 +1,36 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Driver History API
+  version: 1.0.0
+  description: Driver trip and performance history functions.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Driver History
+paths:
+  /drivers/{driverId}/trips:
+    get:
+      tags: [Driver History]
+      summary: View driver's trip history
+      operationId: getDriverTripHistory
+      parameters:
+        - {name: driverId, in: path, required: true, schema: {type: integer}}
+        - {name: status, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Driver trip history}
+  /drivers/{driverId}/ratings:
+    get:
+      tags: [Driver History]
+      summary: View ratings received
+      operationId: getDriverRatings
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Driver ratings}
+  /drivers/{driverId}/performance:
+    get:
+      tags: [Driver History]
+      summary: View own performance
+      operationId: getOwnPerformance
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Driver performance statistics}

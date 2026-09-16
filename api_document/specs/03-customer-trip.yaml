@@ -1,0 +1,74 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Customer Trip API
+  version: 1.0.0
+  description: Customer trip tracking and status functions covering FR16-FR17.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Customer Trip
+paths:
+  /customers/{customerId}/trips:
+    get:
+      tags: [Customer Trip]
+      summary: View customer trips
+      operationId: listCustomerTrips
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+      responses:
+        '200': {description: Trip list}
+  /customers/{customerId}/trips/{tripId}:
+    get:
+      tags: [Customer Trip]
+      summary: View current trip status
+      operationId: getCustomerTripStatus
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+        - {$ref: '#/components/parameters/TripId'}
+      responses:
+        '200':
+          description: Current trip information
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TripStatus'}
+  /customers/{customerId}/trips/{tripId}/location:
+    get:
+      tags: [Customer Trip]
+      summary: Track driver's current location
+      operationId: trackDriver
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+        - {$ref: '#/components/parameters/TripId'}
+      responses:
+        '200':
+          description: Current driver location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latitude: {type: number, format: double}
+                  longitude: {type: number, format: double}
+                  updatedAt: {type: string, format: date-time}
+components:
+  parameters:
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      schema: {type: integer}
+    TripId:
+      name: tripId
+      in: path
+      required: true
+      schema: {type: integer}
+  schemas:
+    TripStatus:
+      type: object
+      properties:
+        tripId: {type: integer}
+        driverId: {type: integer, nullable: true}
+        vehicleId: {type: integer, nullable: true}
+        status:
+          type: string
+          enum: [Requested, Finding Driver, Assigned, OnGoing, Completed, Cancelled]

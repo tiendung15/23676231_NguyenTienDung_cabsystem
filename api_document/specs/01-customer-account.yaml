@@ -1,0 +1,118 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Customer Account API
+  version: 1.0.0
+  description: Customer account functions covering FR01-FR04.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Customer Account
+paths:
+  /customers/register:
+    post:
+      tags: [Customer Account]
+      summary: Register customer account
+      operationId: registerCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RegisterCustomer'}
+      responses:
+        '201': {description: Customer registered}
+        '400': {description: Invalid registration data}
+        '409': {description: Phone or email already exists}
+  /customers/login:
+    post:
+      tags: [Customer Account]
+      summary: Login customer
+      operationId: customerLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Login'}
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LoginResponse'}
+        '401': {description: Invalid credentials}
+  /customers/{customerId}:
+    get:
+      tags: [Customer Account]
+      summary: View customer profile
+      operationId: getCustomerProfile
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+      responses:
+        '200': {description: Customer profile}
+        '404': {description: Customer not found}
+    put:
+      tags: [Customer Account]
+      summary: Update customer profile
+      operationId: updateCustomerProfile
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UpdateCustomer'}
+      responses:
+        '200': {description: Profile updated}
+  /customers/{customerId}/verify:
+    post:
+      tags: [Customer Account]
+      summary: Verify customer account
+      operationId: verifyCustomer
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [otp]
+              properties:
+                otp: {type: string, example: "123456"}
+      responses:
+        '200': {description: Account verified}
+        '400': {description: Invalid or expired OTP}
+components:
+  parameters:
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      schema: {type: integer}
+  schemas:
+    RegisterCustomer:
+      type: object
+      required: [fullName, phone, email, password]
+      properties:
+        fullName: {type: string}
+        phone: {type: string}
+        email: {type: string, format: email}
+        password: {type: string, format: password}
+    Login:
+      type: object
+      required: [email, password]
+      properties:
+        email: {type: string, format: email}
+        password: {type: string, format: password}
+    LoginResponse:
+      type: object
+      properties:
+        accessToken: {type: string}
+        userId: {type: integer}
+        role: {type: string, example: Customer}
+    UpdateCustomer:
+      type: object
+      properties:
+        fullName: {type: string}
+        phone: {type: string}
+        email: {type: string, format: email}
+        defaultPaymentMethod: {type: string}

@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Customer Booking API
+  version: 1.0.0
+  description: Customer booking functions covering FR06-FR10.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Customer Booking
+paths:
+  /customers/{customerId}/fare-estimates:
+    post:
+      tags: [Customer Booking]
+      summary: Get fare estimate
+      operationId: estimateCustomerFare
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BookingRequest'}
+      responses:
+        '200':
+          description: Fare estimate
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FareEstimate'}
+        '400': {description: Invalid or out-of-service-area location}
+  /customers/{customerId}/bookings:
+    post:
+      tags: [Customer Booking]
+      summary: Create booking request
+      operationId: createBooking
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BookingRequest'}
+      responses:
+        '201': {description: Booking created}
+        '403': {description: Customer is not verified}
+        '400': {description: Invalid booking data}
+    get:
+      tags: [Customer Booking]
+      summary: View customer's bookings
+      operationId: listCustomerBookings
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+        - name: status
+          in: query
+          schema: {type: string}
+      responses:
+        '200': {description: Booking list}
+  /customers/{customerId}/bookings/{tripId}:
+    get:
+      tags: [Customer Booking]
+      summary: View booking details
+      operationId: getBooking
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+        - {$ref: '#/components/parameters/TripId'}
+      responses:
+        '200': {description: Booking details}
+        '404': {description: Booking not found}
+  /customers/{customerId}/bookings/{tripId}/cancel:
+    post:
+      tags: [Customer Booking]
+      summary: Cancel booking
+      operationId: cancelBooking
+      parameters:
+        - {$ref: '#/components/parameters/CustomerId'}
+        - {$ref: '#/components/parameters/TripId'}
+      responses:
+        '200': {description: Booking cancelled}
+        '400': {description: Cancellation not allowed or cancellation fee applies}
+components:
+  parameters:
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      schema: {type: integer}
+    TripId:
+      name: tripId
+      in: path
+      required: true
+      schema: {type: integer}
+  schemas:
+    BookingRequest:
+      type: object
+      required: [pickupLocation, dropoffLocation, vehicleType]
+      properties:
+        pickupLocation: {type: string, example: District 1}
+        dropoffLocation: {type: string, example: Tan Son Nhat Airport}
+        vehicleType: {type: string, enum: [4-seat, 7-seat, Motorbike]}
+    FareEstimate:
+      type: object
+      properties:
+        distanceKm: {type: number, format: double}
+        durationMinutes: {type: integer}
+        estimatedFare: {type: number, format: double}

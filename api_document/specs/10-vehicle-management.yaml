@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Vehicle Management API
+  version: 1.0.0
+  description: Operation Staff vehicle management functions covering FR34.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Vehicle Management
+paths:
+  /operation/vehicles:
+    get:
+      tags: [Vehicle Management]
+      summary: List vehicles
+      operationId: listVehicles
+      responses:
+        '200': {description: Vehicle list}
+    post:
+      tags: [Vehicle Management]
+      summary: Add vehicle
+      operationId: createVehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VehicleRequest'}
+      responses:
+        '201': {description: Vehicle created}
+        '409': {description: Plate number already exists}
+  /operation/vehicles/{vehicleId}:
+    get:
+      tags: [Vehicle Management]
+      summary: View vehicle details
+      operationId: getVehicle
+      parameters: [{name: vehicleId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Vehicle details}
+    put:
+      tags: [Vehicle Management]
+      summary: Update vehicle
+      operationId: updateVehicle
+      parameters: [{name: vehicleId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VehicleRequest'}
+      responses:
+        '200': {description: Vehicle updated}
+    patch:
+      tags: [Vehicle Management]
+      summary: Activate or deactivate vehicle
+      operationId: updateVehicleStatus
+      parameters: [{name: vehicleId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {type: string, enum: [Active, Inactive]}
+      responses:
+        '200': {description: Vehicle status updated}
+components:
+  schemas:
+    VehicleRequest:
+      type: object
+      required: [driverId, plateNumber, vehicleType]
+      properties:
+        driverId: {type: integer}
+        plateNumber: {type: string}
+        vehicleType: {type: string, enum: [4-seat, 7-seat, Motorbike]}
+        status: {type: string, enum: [Active, Inactive]}

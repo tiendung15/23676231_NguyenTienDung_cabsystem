@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Driver Trip API
+  version: 1.0.0
+  description: Driver trip functions covering FR13, FR16, FR18 and FR19.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Driver Trip
+paths:
+  /drivers/{driverId}/trip-requests:
+    get:
+      tags: [Driver Trip]
+      summary: View pending trip requests
+      operationId: getTripRequests
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Pending trip requests}
+  /drivers/{driverId}/trip-requests/{tripId}/response:
+    post:
+      tags: [Driver Trip]
+      summary: Accept or reject trip request
+      operationId: respondToTripRequest
+      parameters:
+        - {name: driverId, in: path, required: true, schema: {type: integer}}
+        - {name: tripId, in: path, required: true, schema: {type: integer}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: {type: string, enum: [Accepted, Rejected]}
+      responses:
+        '200': {description: Driver response recorded}
+        '409': {description: Driver is not eligible to accept}
+  /drivers/{driverId}/trips/{tripId}/location:
+    post:
+      tags: [Driver Trip]
+      summary: Send current GPS location
+      operationId: updateLocation
+      parameters:
+        - {name: driverId, in: path, required: true, schema: {type: integer}}
+        - {name: tripId, in: path, required: true, schema: {type: integer}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [latitude, longitude]
+              properties:
+                latitude: {type: number, format: double}
+                longitude: {type: number, format: double}
+      responses:
+        '200': {description: Location updated}
+  /drivers/{driverId}/trips/{tripId}/start:
+    post:
+      tags: [Driver Trip]
+      summary: Start trip
+      operationId: startTrip
+      parameters:
+        - {name: driverId, in: path, required: true, schema: {type: integer}}
+        - {name: tripId, in: path, required: true, schema: {type: integer}}
+      responses:
+        '200': {description: Trip started}
+        '409': {description: Trip cannot be started}
+  /drivers/{driverId}/trips/{tripId}/end:
+    post:
+      tags: [Driver Trip]
+      summary: End trip
+      operationId: endTrip
+      parameters:
+        - {name: driverId, in: path, required: true, schema: {type: integer}}
+        - {name: tripId, in: path, required: true, schema: {type: integer}}
+      responses:
+        '200': {description: Trip completed}
+        '409': {description: Trip cannot be completed}

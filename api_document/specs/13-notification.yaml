@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Notification API
+  version: 1.0.0
+  description: Notification functions covering FR26-FR30.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Notification
+paths:
+  /notifications/booking-confirmed:
+    post:
+      tags: [Notification]
+      summary: Notify booking success
+      operationId: notifyBookingConfirmed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NotificationRequest'}
+      responses:
+        '202': {description: Notification accepted}
+  /notifications/driver-assigned:
+    post:
+      tags: [Notification]
+      summary: Notify driver assignment
+      operationId: notifyDriverAssigned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NotificationRequest'}
+      responses:
+        '202': {description: Notification accepted}
+  /notifications/driver-arrived:
+    post:
+      tags: [Notification]
+      summary: Notify driver arrival
+      operationId: notifyDriverArrived
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NotificationRequest'}
+      responses:
+        '202': {description: Notification accepted}
+  /notifications/trip-completed:
+    post:
+      tags: [Notification]
+      summary: Notify trip completion
+      operationId: notifyTripCompleted
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NotificationRequest'}
+      responses:
+        '202': {description: Notification accepted}
+  /notifications/payment-result:
+    post:
+      tags: [Notification]
+      summary: Notify payment result
+      operationId: notifyPaymentResult
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NotificationRequest'}
+      responses:
+        '202': {description: Notification accepted}
+  /users/{userId}/notifications:
+    get:
+      tags: [Notification]
+      summary: View user notifications
+      operationId: getUserNotifications
+      parameters: [{name: userId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Notification list}
+components:
+  schemas:
+    NotificationRequest:
+      type: object
+      required: [userId, tripId, content]
+      properties:
+        userId: {type: integer}
+        tripId: {type: integer}
+        content: {type: string}

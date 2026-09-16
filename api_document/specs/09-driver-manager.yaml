@@ -1,0 +1,72 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Driver Manager API
+  version: 1.0.0
+  description: Operation Staff driver management functions covering FR05 and FR33.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Driver Manager
+paths:
+  /operation/drivers:
+    get:
+      tags: [Driver Manager]
+      summary: Search and view drivers
+      operationId: listDrivers
+      parameters:
+        - {name: search, in: query, schema: {type: string}}
+        - {name: status, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Driver list}
+  /operation/drivers/{driverId}:
+    get:
+      tags: [Driver Manager]
+      summary: View driver details
+      operationId: getDriver
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Driver details}
+  /operation/drivers/{driverId}/approval:
+    patch:
+      tags: [Driver Manager]
+      summary: Approve or reject driver profile
+      operationId: approveDriver
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: {type: string, enum: [Approved, Rejected]}
+                note: {type: string}
+      responses:
+        '200': {description: Driver approval updated}
+        '403': {description: Insufficient permission}
+  /operation/drivers/{driverId}/status:
+    patch:
+      tags: [Driver Manager]
+      summary: Lock or unlock driver
+      operationId: changeDriverStatus
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {type: string, enum: [Active, Locked]}
+      responses:
+        '200': {description: Driver status updated}
+  /operation/drivers/{driverId}/performance:
+    get:
+      tags: [Driver Manager]
+      summary: View driver performance
+      operationId: getDriverPerformance
+      parameters: [{name: driverId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Driver performance}

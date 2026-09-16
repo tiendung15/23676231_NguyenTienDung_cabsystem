@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: CAB System - Fare and Payment Processing API
+  version: 1.0.0
+  description: System and payment-provider integration functions covering FR21-FR24.
+servers:
+  - url: https://api.cab-system.example.com
+tags:
+  - name: Fare
+  - name: Payment Provider
+paths:
+  /system/trips/{tripId}/fare:
+    post:
+      tags: [Fare]
+      summary: Calculate final trip fare
+      operationId: calculateTripFare
+      parameters: [{name: tripId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200':
+          description: Final fare calculated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  baseFare: {type: number, format: double}
+                  distanceFare: {type: number, format: double}
+                  timeFare: {type: number, format: double}
+                  totalAmount: {type: number, format: double}
+  /system/payments/{paymentId}/process:
+    post:
+      tags: [Payment Provider]
+      summary: Process electronic payment
+      operationId: processElectronicPayment
+      parameters: [{name: paymentId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount: {type: number, format: double}
+                idempotencyKey: {type: string}
+      responses:
+        '200': {description: Payment processed successfully}
+        '402': {description: Payment rejected}
+        '503': {description: Payment provider unavailable}
+  /system/payments/{paymentId}/retry:
+    post:
+      tags: [Payment Provider]
+      summary: Retry failed payment
+      operationId: retryElectronicPayment
+      parameters: [{name: paymentId, in: path, required: true, schema: {type: integer}}]
+      responses:
+        '200': {description: Retry initiated}
+        '409': {description: Payment cannot be retried}
+  /system/payments/{paymentId}/confirm:
+    post:
+      tags: [Payment Provider]
+      summary: Confirm payment result
+      operationId: confirmPayment
+      parameters: [{name: paymentId, in: path, required: true, schema: {type: integer}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status, providerReference]
+              properties:
+                status: {type: string, enum: [Success, Failed]}
+                providerReference: {type: string}
+      responses:
+        '200': {description: Payment result confirmed}
